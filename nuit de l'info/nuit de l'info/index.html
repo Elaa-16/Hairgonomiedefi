@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Village Cartoon Fullscreen</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    .village {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-image: url('village_bg.png');
+      background-size: 100% 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+      overflow: hidden;
+    }
+
+    .hutte {
+      position: absolute;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s;
+      width: 280px;
+      height: 320px;
+      transform: translate(-50%, -50%);
+    }
+
+    .hutte img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .hutte span {
+      display: block;
+      margin-top: -15px;
+      font-weight: bold;
+      color: #333;
+      font-size: 22px;
+      text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+      position: relative;
+      z-index: 10;
+    }
+
+    .hutte:hover {
+      transform: translate(-50%, -50%) scale(1.2);
+      z-index: 10;
+    }
+
+    .personnage {
+      position: absolute;
+      transition: transform 0.3s;
+    }
+
+    /* Astérix - taille normale */
+    .asterix {
+      width: 200px;
+      bottom: 30%;
+      left: 5%;
+    }
+
+    /* Obélix - taille plus grande (personnage important) */
+    .obelix {
+      width: 280px;
+      bottom: 25%;
+      right: 3%;
+      z-index: 5;
+    }
+
+    .personnage:hover {
+      transform: translateY(-10px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="village">
+    <!-- Huttes -->
+    <div class="hutte" id="cours">
+      <img src="hutte.png" alt="Cours">
+      <span>Cours</span>
+    </div>
+    <div class="hutte" id="devoirs">
+      <img src="hutte.png" alt="Devoirs">
+      <span>Devoirs</span>
+    </div>
+    <div class="hutte" id="messages">
+      <img src="hutte.png" alt="Messages">
+      <span>Messages</span>
+    </div>
+    <div class="hutte" id="ressources">
+      <img src="hutte.png" alt="Ressources">
+      <span>Ressources</span>
+    </div>
+    <div class="hutte" id="getafix">
+      <img src="hutte.png" alt="Getafix">
+      <span>Getafix</span>
+    </div>
+
+    <!-- Personnages -->
+    <img src="asterix.png" class="personnage asterix" alt="Astérix">
+    <img src="obelix.png" class="personnage obelix" alt="Obélix">
+  </div>
+
+  <script>
+    const huttes = document.querySelectorAll('.hutte');
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    
+    // Rayon du cercle augmenté pour plus d'espace
+    const radius = Math.min(window.innerWidth, window.innerHeight) * 0.38;
+    
+    // Nombre de huttes
+    const numHuttes = huttes.length;
+    
+    // Angle entre chaque hutte (en radians)
+    const angleStep = (2 * Math.PI) / numHuttes;
+    
+    // Décalage initial pour positionner la première hutte un peu plus bas
+    const startAngle = -Math.PI / 3.5; // Décalé davantage pour descendre la hutte du haut
+    
+    // Positionner les huttes en cercle
+    huttes.forEach((hutte, index) => {
+      // Calculer l'angle pour cette hutte
+      const angle = startAngle + (index * angleStep);
+      
+      // Calculer les coordonnées
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+      
+      // Appliquer les positions
+      hutte.style.left = `${x}px`;
+      hutte.style.top = `${y}px`;
+      
+      // Ajouter l'événement click
+      hutte.addEventListener('click', () => {
+        alert(`Vous avez cliqué sur ${hutte.id}`);
+        // window.location.href = `${hutte.id}.html`;
+      });
+    });
+    
+    // Repositionner les huttes quand la fenêtre est redimensionnée
+    window.addEventListener('resize', () => {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const radius = Math.min(window.innerWidth, window.innerHeight) * 0.38;
+      const angleStep = (2 * Math.PI) / numHuttes;
+      const startAngle = -Math.PI / 3.5;
+      
+      huttes.forEach((hutte, index) => {
+        const angle = startAngle + (index * angleStep);
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        
+        hutte.style.left = `${x}px`;
+        hutte.style.top = `${y}px`;
+      });
+    });
+  </script>
+
+</body>
+</html>

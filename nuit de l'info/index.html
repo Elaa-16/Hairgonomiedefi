@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Village Cartoon Fullscreen</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: 'Times New Roman', serif;
+    }
+
+    .village {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-image: url('village_bg.png');
+      background-size: 100% 100%;
+      background-position: center;
+      background-repeat: no-repeat;
+      overflow: hidden;
+    }
+
+    .hutte {
+      position: absolute;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s;
+      width: 280px;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+       text-decoration: none;
+  color: inherit;
+    }
+
+    .hutte img {
+      width: 100%;
+      height: auto;
+      max-height: 220px;
+      object-fit: contain;
+    }
+
+    .hutte span {
+      display: block;
+      margin-top: 5px;
+      font-weight: bold;
+      color: #fff;
+      font-size: 24px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 5px 15px;
+      border-radius: 10px;
+      white-space: nowrap;
+      margin-top: -10px;
+    }
+
+    .hutte:hover {
+      transform: translate(-50%, -50%) scale(1.2);
+      z-index: 10;
+    }
+
+    .personnage {
+      position: absolute;
+      transition: transform 0.3s;
+      cursor: pointer;
+    }
+
+    /* Astérix - animation sur place */
+    .asterix {
+      width: 200px;
+      bottom: 30%;
+      left: 5%;
+      animation: floatAsterix 3s ease-in-out infinite;
+      z-index: 5;
+    }
+
+    /* Animation de flottement pour Astérix */
+    @keyframes floatAsterix {
+      0%, 100% {
+        transform: translateY(0) scaleX(1);
+      }
+      25% {
+        transform: translateY(-15px) scaleX(1);
+      }
+      50% {
+        transform: translateY(0) scaleX(1);
+      }
+      75% {
+        transform: translateY(-10px) scaleX(1);
+      }
+    }
+
+    /* Obélix - animation sur place */
+    .obelix {
+      width: 280px;
+      bottom: 25%;
+      right: 3%;
+      animation: bounceObelix 4s ease-in-out infinite;
+      z-index: 5;
+    }
+
+    /* Animation de rebond pour Obélix */
+    @keyframes bounceObelix {
+      0%, 100% {
+        transform: translateY(0) scaleX(1);
+      }
+      20% {
+        transform: translateY(-20px) scaleX(1.05);
+      }
+      40% {
+        transform: translateY(0) scaleX(1);
+      }
+      60% {
+        transform: translateY(-10px) scaleX(0.95);
+      }
+      80% {
+        transform: translateY(0) scaleX(1);
+      }
+    }
+
+    /* Getafix - Animation rapide au sol */
+    .getafix {
+      position: absolute;
+      width: 120px;
+      height: auto;
+      z-index: 4;
+      pointer-events: none;
+      filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+      bottom: 20%; /* Positionné au sol */
+    }
+
+    /* Animation de marche rapide */
+    @keyframes walkSteps {
+      0%, 100% {
+        transform: translateY(0) scaleX(1);
+      }
+      25% {
+        transform: translateY(-2px) scaleX(1);
+      }
+      50% {
+        transform: translateY(0) scaleX(1);
+      }
+      75% {
+        transform: translateY(-1px) scaleX(1);
+      }
+    }
+
+    /* Carte antique / Lettre vintage - TAILLE RÉDUITE */
+    .vintage-card {
+      position: absolute;
+      background-color: #f5e9d4;
+      border-radius: 5px;
+      width: 280px;
+      box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        inset 0 0 50px rgba(139, 69, 19, 0.1);
+      z-index: 100;
+      display: none;
+      border: 10px solid transparent;
+      border-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="none" stroke="%238B4513" stroke-width="6" stroke-dasharray="8,4"/></svg>') 10 stretch;
+      padding: 20px 18px;
+      font-family: 'Courier New', monospace;
+      color: #3d2b1f;
+      transform: rotate(-1deg);
+      filter: sepia(0.3) brightness(0.95);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      font-size: 13px;
+    }
+
+    .vintage-card.active {
+      display: block;
+      opacity: 1;
+      animation: cardAppear 0.3s ease-out forwards;
+    }
+
+    @keyframes cardAppear {
+      0% {
+        opacity: 0;
+        transform: translateY(10px) rotate(-1deg) scale(0.95);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) rotate(-1deg) scale(1);
+      }
+    }
+
+    /* Effet de papier vieilli */
+    .vintage-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        linear-gradient(90deg, 
+          transparent 0%, 
+          rgba(255,255,255,0.1) 1%, 
+          transparent 2%),
+        linear-gradient(0deg, 
+          transparent 0%, 
+          rgba(255,255,255,0.1) 1%, 
+          transparent 2%),
+        radial-gradient(circle at 20% 80%, 
+          rgba(255,255,255,0.1) 0%, 
+          transparent 20%),
+        radial-gradient(circle at 80% 20%, 
+          rgba(255,255,255,0.1) 0%, 
+          transparent 20%);
+      pointer-events: none;
+      border-radius: 3px;
+    }
+
+    /* Taches d'âge sur le papier */
+    .vintage-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 10% 20%, 
+          rgba(139, 69, 19, 0.05) 0%, 
+          transparent 40%),
+        radial-gradient(circle at 90% 80%, 
+          rgba(139, 69, 19, 0.05) 0%, 
+          transparent 40%),
+        radial-gradient(circle at 30% 70%, 
+          rgba(139, 69, 19, 0.03) 0%, 
+          transparent 30%);
+      pointer-events: none;
+      border-radius: 3px;
+    }
+
+    /* En-tête de la carte - TAILLE RÉDUITE */
+    .card-header {
+      text-align: center;
+      margin-bottom: 18px;
+      position: relative;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #8B4513;
+    }
+
+    .card-header h3 {
+      color: #5d2d0c;
+      margin: 0;
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+      font-family: 'Palatino Linotype', serif;
+    }
+
+    .card-header .subtitle {
+      color: #7a4a23;
+      font-style: italic;
+      margin-top: 3px;
+      font-size: 12px;
+    }
+
+    /* Contenu de la carte - TAILLE RÉDUITE */
+    .card-content {
+      line-height: 1.5;
+      position: relative;
+      z-index: 2;
+    }
+
+    .card-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .card-content li {
+      margin-bottom: 10px;
+      padding-left: 20px;
+      position: relative;
+      font-size: 12.5px;
+    }
+
+    .card-content li:before {
+      content: "✦";
+      position: absolute;
+      left: 0;
+      color: #8B4513;
+      font-size: 12px;
+    }
+
+    .card-content strong {
+      color: #5d2d0c;
+      font-weight: bold;
+      font-size: 12.5px;
+    }
+
+    /* Sceau de cire - TAILLE RÉDUITE */
+    .wax-seal {
+      position: absolute;
+      bottom: -15px;
+      right: -15px;
+      width: 45px;
+      height: 45px;
+      background: radial-gradient(circle at 30% 30%, 
+        #8b0000 0%, 
+        #a52a2a 30%, 
+        #8b0000 70%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 
+        0 2px 8px rgba(0,0,0,0.3),
+        inset 0 1px 4px rgba(255,255,255,0.2);
+      z-index: 3;
+      transform: rotate(15deg);
+    }
+
+    .wax-seal:after {
+      content: "G";
+      color: rgba(255, 255, 255, 0.9);
+      font-family: 'Times New Roman', serif;
+      font-size: 21px;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* Indicateur visuel au survol */
+    .personnage:hover {
+      filter: drop-shadow(0 0 15px #ffd700);
+      animation-play-state: paused;
+    }
+
+    /* Plume décorative - TAILLE RÉDUITE */
+    .feather {
+      position: absolute;
+      top: -12px;
+      right: 15px;
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(45deg, #8B4513 0%, #D2B48C 50%, #8B4513 100%);
+      clip-path: polygon(50% 0%, 60% 20%, 100% 50%, 60% 80%, 50% 100%, 40% 80%, 0% 50%, 40% 20%);
+      transform: rotate(45deg);
+      opacity: 0.7;
+    }
+
+    /* Styles pour les paragraphes dans les cartes */
+    .card-content p {
+      font-size: 12px;
+      margin: 15px 0 0 0;
+    }
+
+    .card-content div[style*="background-color"] {
+      font-size: 11.5px;
+      padding: 10px;
+      margin-top: 15px;
+    }
+    .dog-container {
+  position: absolute;
+  bottom: 10%;  /* position du chien */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;  /* largeur du chien */
+}
+
+.energy-bar {
+  position: absolute;
+  top: -15px;  /* juste au-dessus du chien */
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background-color: rgba(0,0,0,0.3);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.energy-fill {
+  width: 100%;  /* commence plein */
+  height: 100%;
+  background-color: #4caf50;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+  </style>
+</head>
+<body>
+    <div class="dog-container">
+  <img src="dog.png" class="personnage dog" alt="Chien">
+  <!-- Barre d'énergie juste au-dessus -->
+  <div class="energy-bar">
+    <div class="energy-fill"></div>
+  </div>
+</div>
+
+
+  <div class="village">
+    <!-- Huttes -->
+    
+    <a href="cours.html" class="hutte" id="cours">
+      <img src="hutte.png" alt="Cours">
+      <span>Cours</span>
+    </a>
+
+    <a href="#" class="hutte" id="devoirs">
+      <img src="hutte.png" alt="Devoirs">
+      <span>Devoirs</span>
+    </a>
+
+    <a href="#" class="hutte" id="messages">
+      <img src="hutte.png" alt="Messages">
+      <span>Messages</span>
+    </a>
+
+    <a href="#" class="hutte" id="ressources">
+      <img src="hutte.png" alt="Ressources">
+      <span>Ressources</span>
+    </a>
+</div>
+
+
+    <!-- Personnages -->
+    <img src="asterix.png" class="personnage asterix" alt="Astérix" data-character="asterix">
+    <img src="obelix.png" class="personnage obelix" alt="Obélix" data-character="obelix">
+    <!-- Getafix - en mouvement rapide au sol -->
+    <img src="getafix.png" class="personnage getafix" alt="Getafix">
+    
+    <!-- Carte antique Astérix - CONTENU ADAPTÉ À LA NOUVELLE TAILLE -->
+    <div class="vintage-card" id="asterix-card">
+      <div class="feather"></div>
+      <div class="card-header">
+        <h3>ROADMAP DE FORMATION</h3>
+        <div class="subtitle">Par Astérix le Gaulois</div>
+      </div>
+      <div class="card-content">
+        <ul>
+          <li><strong>1. Arts des scribes :</strong> HTML, CSS</li>
+          <li><strong>2. Magie des runes :</strong> JavaScript</li>
+          <li><strong>3. Artisanat avancé :</strong> Frameworks</li>
+          <li><strong>4. Forge backend :</strong> Bases, API</li>
+          <li><strong>5. Projet final :</strong> Ton propre village</li>
+        </ul>
+        <p style="text-align: center; margin-top: 15px; font-style: italic; color: #7a4a23;">
+          "Par Toutatis ! Suis la voie des huttes !"
+        </p>
+      </div>
+      <div class="wax-seal"></div>
+    </div>
+    
+    <!-- Carte antique Obélix - CONTENU ADAPTÉ À LA NOUVELLE TAILLE -->
+    <div class="vintage-card" id="obelix-card">
+      <div class="feather"></div>
+      <div class="card-header">
+        <h3>GUIDE DU VILLAGE</h3>
+        <div class="subtitle">Par Obélix, livreur</div>
+      </div>
+      <div class="card-content">
+        <ul>
+          <li><strong>Cours :</strong> Les secrets des druides</li>
+          <li><strong>Devoirs :</strong> Forge tes compétences</li>
+          <li><strong>Messages :</strong> Consulte les augures</li>
+          <li><strong>Ressources :</strong> L'armurerie du savoir</li>
+        </ul>
+        <div style="background-color: rgba(139, 69, 19, 0.1); padding: 10px; border-radius: 5px; margin-top: 15px; border-left: 3px solid #8B4513;">
+          <strong style="color: #5d2d0c; font-size: 12px;">💡 Conseil :</strong><br>
+          "Commence par Cours, puis Devoirs !"
+        </div>
+      </div>
+      <div class="wax-seal"></div>
+    </div>
+  </div>
+
+  <script>
+    const huttes = document.querySelectorAll('.hutte');
+    const getafix = document.querySelector('.getafix');
+    
+    // Positions des huttes pour référence
+    const huttePositions = [];
+    
+    // Fonction pour positionner les huttes et récupérer leurs positions
+    function positionHuttes() {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      const radius = Math.min(window.innerWidth, window.innerHeight) * 0.3;
+      const numHuttes = huttes.length;
+      const angleStep = (2 * Math.PI) / numHuttes;
+      const startAngle = -Math.PI / 2; // Commence en haut
+      
+      huttes.forEach((hutte, index) => {
+        const angle = startAngle + (index * angleStep);
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        
+        hutte.style.left = `${x}px`;
+        hutte.style.top = `${y}px`;
+        
+        // Stocker les positions pour Getafix
+        huttePositions[index] = {
+          id: hutte.id,
+          x: x,
+          y: y
+        };
+        
+        // Événement click
+if (!hutte.hasClickListener) {
+  hutte.addEventListener('click', () => {
+    alert(`Vous avez cliqué sur ${hutte.id}. Cette page n'existe pas encore.`);
+    // window.location.href = `${hutte.id}.html`;  <-- pas encore disponible
+  });
+  hutte.hasClickListener = true;
+}
+
+      });
+      
+      // Mettre à jour l'animation de Getafix avec les nouvelles positions
+      updateGetafixAnimation();
+    }
+    
+    // Fonction pour mettre à jour l'animation de Getafix (au sol)
+    function updateGetafixAnimation() {
+      if (huttePositions.length === 0 || huttePositions[0].x === 0) return;
+      
+      // Créer le CSS pour l'animation de Getafix basée sur les positions réelles
+      const style = document.createElement('style');
+      style.id = 'getafix-animation';
+      
+      // Calculer les positions au sol (plus bas que les huttes)
+      const cours = huttePositions[0];
+      const devoirs = huttePositions[1];
+      const messages = huttePositions[2];
+      const ressources = huttePositions[3];
+      
+      // Hauteur au sol (plus bas que les huttes)
+      const groundLevel = window.innerHeight * 0.75; // 75% du bas de l'écran
+      
+      // Calculer les positions intermédiaires au sol
+      // Chemin circulaire au sol autour des huttes
+      const animationCSS = `
+        @keyframes groundCircularPath {
+          0% {
+            /* Commence près de la hutte Cours (gauche) */
+            left: ${cours.x - 140}px;
+            bottom: 20%;
+            transform: scaleX(1);
+          }
+          25% {
+            /* Passe devant la hutte Devoirs (haut) */
+            left: ${devoirs.x}px;
+            bottom: 15%;
+            transform: scaleX(1);
+          }
+          50% {
+            /* Passe devant la hutte Messages (droite) */
+            left: ${messages.x + 140}px;
+            bottom: 20%;
+            transform: scaleX(-1); /* Tourne vers la gauche */
+          }
+          75% {
+            /* Passe devant la hutte Ressources (bas) */
+            left: ${ressources.x}px;
+            bottom: 25%;
+            transform: scaleX(-1);
+          }
+          100% {
+            /* Retour au point de départ */
+            left: ${cours.x - 140}px;
+            bottom: 20%;
+            transform: scaleX(1);
+          }
+        }
+        
+        .getafix {
+          animation: 
+            groundCircularPath 25s linear infinite, /* PLUS RAPIDE : 25s au lieu de 40s */
+            walkSteps 0.4s ease-in-out infinite; /* PLUS RAPIDE : 0.4s au lieu de 0.6s */
+        }
+      `;
+      
+      // Supprimer l'ancienne animation si elle existe
+      const oldStyle = document.getElementById('getafix-animation');
+      if (oldStyle) {
+        oldStyle.remove();
+      }
+      
+      // Ajouter la nouvelle animation
+      style.textContent = animationCSS;
+      style.id = 'getafix-animation';
+      document.head.appendChild(style);
+    }
+    
+    // Gestion des personnages et cartes vintage
+    const asterix = document.querySelector('.asterix');
+    const obelix = document.querySelector('.obelix');
+    const asterixCard = document.getElementById('asterix-card');
+    const obelixCard = document.getElementById('obelix-card');
+    
+    // Variables pour la gestion des cartes
+    let currentCard = null;
+    let cardTimeout = null;
+    let isTransitioning = false;
+    
+    // Fonction pour positionner une carte TRÈS PROCHE du personnage
+    function positionCard(card, target) {
+      const rect = target.getBoundingClientRect();
+      const cardWidth = 280;
+      const cardHeight = 340;
+      
+      // Pour Astérix (à gauche), on met la carte à droite du personnage
+      // Pour Obélix (à droite), on met la carte à gauche du personnage
+      
+      if (target.classList.contains('asterix')) {
+        // Astérix est à gauche, carte à sa droite
+        let left = rect.right + 10;
+        let top = rect.top + rect.height / 2 - cardHeight / 2;
+        
+        // Ajustements
+        if (top + cardHeight > window.innerHeight - 10) {
+          top = window.innerHeight - cardHeight - 10;
+        }
+        if (top < 10) top = 10;
+        
+        card.style.left = `${left}px`;
+        card.style.top = `${top}px`;
+        
+      } else if (target.classList.contains('obelix')) {
+        // Obélix est à droite, carte à sa gauche
+        let left = rect.left - cardWidth - 10;
+        let top = rect.top + rect.height / 2 - cardHeight / 2;
+        
+        // Ajustements
+        if (top + cardHeight > window.innerHeight - 10) {
+          top = window.innerHeight - cardHeight - 10;
+        }
+        if (top < 10) top = 10;
+        if (left < 10) left = 10;
+        
+        card.style.left = `${left}px`;
+        card.style.top = `${top}px`;
+      }
+    }
+    
+    // Fonction pour afficher une carte
+    function showCard(character) {
+      if (isTransitioning) return;
+      
+      isTransitioning = true;
+      
+      if (cardTimeout) {
+        clearTimeout(cardTimeout);
+        cardTimeout = null;
+      }
+      
+      if (currentCard && currentCard !== character) {
+        hideCurrentCard(() => {
+          displayNewCard(character);
+        });
+      } else {
+        displayNewCard(character);
+      }
+    }
+    
+    // Afficher la nouvelle carte
+    function displayNewCard(character) {
+      const card = document.getElementById(`${character}-card`);
+      const characterElement = character === 'asterix' ? asterix : obelix;
+      
+      positionCard(card, characterElement);
+      card.classList.add('active');
+      
+      currentCard = character;
+      isTransitioning = false;
+    }
+    
+    // Cacher la carte actuelle
+    function hideCurrentCard(callback) {
+      if (!currentCard) {
+        if (callback) callback();
+        return;
+      }
+      
+      const card = document.getElementById(`${currentCard}-card`);
+      card.classList.remove('active');
+      
+      setTimeout(() => {
+        currentCard = null;
+        if (callback) callback();
+      }, 300);
+    }
+    
+    // Cacher toutes les cartes
+    function hideAllCards() {
+      if (isTransitioning) return;
+      
+      isTransitioning = true;
+      
+      if (currentCard) {
+        const card = document.getElementById(`${currentCard}-card`);
+        card.classList.remove('active');
+        
+        cardTimeout = setTimeout(() => {
+          currentCard = null;
+          isTransitioning = false;
+          cardTimeout = null;
+        }, 300);
+      } else {
+        isTransitioning = false;
+      }
+    }
+    
+    // Délai pour cacher la carte
+    let hideDelay;
+    
+    // Événements pour Astérix
+    asterix.addEventListener('mouseenter', () => {
+      if (hideDelay) clearTimeout(hideDelay);
+      showCard('asterix');
+    });
+    
+    asterix.addEventListener('mouseleave', (e) => {
+      const card = document.getElementById('asterix-card');
+      const cardRect = card.getBoundingClientRect();
+      
+      if (e.clientX >= cardRect.left && e.clientX <= cardRect.right &&
+          e.clientY >= cardRect.top && e.clientY <= cardRect.bottom) {
+        return;
+      }
+      
+      hideDelay = setTimeout(() => {
+        hideAllCards();
+      }, 100);
+    });
+    
+    // Événements pour Obélix
+    obelix.addEventListener('mouseenter', () => {
+      if (hideDelay) clearTimeout(hideDelay);
+      showCard('obelix');
+    });
+    
+    obelix.addEventListener('mouseleave', (e) => {
+      const card = document.getElementById('obelix-card');
+      const cardRect = card.getBoundingClientRect();
+      
+      if (e.clientX >= cardRect.left && e.clientX <= cardRect.right &&
+          e.clientY >= cardRect.top && e.clientY <= cardRect.bottom) {
+        return;
+      }
+      
+      hideDelay = setTimeout(() => {
+        hideAllCards();
+      }, 100);
+    });
+    
+    // Permettre à la carte de rester visible quand on la survole
+    [asterixCard, obelixCard].forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        if (hideDelay) clearTimeout(hideDelay);
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        hideDelay = setTimeout(() => {
+          hideAllCards();
+        }, 100);
+      });
+    });
+    
+    // Cacher la carte en cliquant n'importe où
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.personnage') && !e.target.closest('.vintage-card')) {
+        hideAllCards();
+      }
+    });
+    
+    // Initialiser les positions
+    positionHuttes();
+    
+    // Repositionner au redimensionnement
+    window.addEventListener('resize', () => {
+      positionHuttes();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bibliothèque Interactive</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: 'Times New Roman', serif;
+    }
+
+    /* Bibliothèque en fond d'écran */
+    .bibliotheque {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background-image: url('biblio.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      overflow: hidden;
+    }
+
+    /* Conteneur pour les livres */
+    .livre {
+      position: absolute;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s;
+      width: 180px;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .livre img {
+      width: 100%;
+      height: auto;
+      max-height: 220px;
+      object-fit: contain;
+      filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.6));
+      transition: transform 0.3s, filter 0.3s;
+    }
+
+    .livre span {
+      display: block;
+      margin-top: 8px;
+      font-weight: bold;
+      color: #fff;
+      font-size: 22px;
+      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.9);
+      background-color: rgba(139, 69, 19, 0.85);
+      padding: 8px 15px;
+      border-radius: 8px;
+      white-space: nowrap;
+      font-family: 'Palatino Linotype', serif;
+      border: 2px solid #8B4513;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    .livre:hover {
+      transform: translate(-50%, -50%) scale(1.2);
+      z-index: 10;
+    }
+
+    .livre:hover img {
+      transform: scale(1.05);
+      filter: drop-shadow(4px 4px 8px rgba(0, 0, 0, 0.8));
+    }
+
+    .livre:hover span {
+      background-color: rgba(160, 90, 40, 0.95);
+      transform: translateY(-3px);
+    }
+
+    /* Styles pour les potions magiques - PLUS PETITES ET EN HAUT À GAUCHE - HORIZONTALES */
+    .potion {
+      position: absolute;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s;
+      width: 80px; /* PLUS PETIT: de 120px à 80px */
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 4;
+    }
+
+    .potion img {
+      width: 100%;
+      height: auto;
+      max-height: 100px; /* PLUS PETIT: de 150px à 100px */
+      object-fit: contain;
+      filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.5));
+      transition: transform 0.3s, filter 0.3s;
+    }
+
+    .potion span {
+      display: block;
+      margin-top: 3px; /* PLUS PETIT */
+      font-weight: bold;
+      color: #fff;
+      font-size: 12px; /* PLUS PETIT: de 16px à 12px */
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
+      background-color: rgba(75, 0, 130, 0.85);
+      padding: 3px 6px; /* PLUS PETIT: de 5px 10px à 3px 6px */
+      border-radius: 6px; /* PLUS PETIT */
+      white-space: nowrap;
+      font-family: 'Palatino Linotype', serif;
+      border: 1px solid #4B0082; /* PLUS FIN */
+      transition: background-color 0.3s, transform 0.3s;
+    }
+
+    /* MODIFICATION: ZOOM RÉDUIT AU SURVOL */
+    .potion:hover {
+      transform: translate(-50%, -50%) scale(1.2); /* RÉDUIT: de 1.5 à 1.2 */
+      z-index: 11;
+    }
+
+    .potion:hover img {
+      transform: scale(1.1); /* RÉDUIT: de 1.2 à 1.1 */
+      filter: drop-shadow(0 0 15px rgba(0, 255, 255, 0.8));
+      animation: brillePotion 0.8s infinite alternate;
+    }
+
+    .potion:hover span {
+      background-color: rgba(138, 43, 226, 0.95);
+      transform: translateY(-3px);
+      font-size: 13px; /* RÉDUIT: de 14px à 13px */
+    }
+
+    @keyframes brillePotion {
+      0% { filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.5)); }
+      100% { filter: drop-shadow(0 0 20px rgba(255, 0, 255, 0.8)); }
+    }
+
+    /* Personnage bibliothécaire */
+    .bibliothecaire {
+      position: absolute;
+      width: 180px;
+      height: auto;
+      bottom: 15%;
+      right: 10%;
+      cursor: pointer;
+      filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+      z-index: 5;
+      animation: floatBibliothecaire 4s ease-in-out infinite;
+    }
+
+    @keyframes floatBibliothecaire {
+      0%, 100% {
+        transform: translateY(0) scaleX(1);
+      }
+      25% {
+        transform: translateY(-10px) scaleX(1);
+      }
+      50% {
+        transform: translateY(0) scaleX(1);
+      }
+      75% {
+        transform: translateY(-5px) scaleX(1);
+      }
+    }
+
+    /* Personnage étudiant */
+    .etudiant {
+      position: absolute;
+      width: 180px;
+      height: auto;
+      bottom: 13%;
+      left: 8%;
+      cursor: pointer;
+      filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+      z-index: 5;
+      animation: readBook 5s ease-in-out infinite;
+    }
+
+    @keyframes readBook {
+      0%, 100% {
+        transform: translateY(0) scaleX(1);
+      }
+      30% {
+        transform: translateY(-5px) scaleX(1);
+      }
+      60% {
+        transform: translateY(0) scaleX(1);
+      }
+      90% {
+        transform: translateY(-3px) scaleX(1);
+      }
+    }
+
+    /* Carte antique pour les infos des livres */
+    .info-carte {
+      position: absolute;
+      background-color: #f5e9d4;
+      border-radius: 5px;
+      width: 280px;
+      box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        inset 0 0 50px rgba(139, 69, 19, 0.1);
+      z-index: 100;
+      display: none;
+      border: 10px solid transparent;
+      border-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="none" stroke="%238B4513" stroke-width="6" stroke-dasharray="8,4"/></svg>') 10 stretch;
+      padding: 20px 18px;
+      font-family: 'Courier New', monospace;
+      color: #3d2b1f;
+      transform: rotate(-1deg);
+      filter: sepia(0.3) brightness(0.95);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      font-size: 13px;
+    }
+
+    .info-carte.active {
+      display: block;
+      opacity: 1;
+      animation: carteAppear 0.3s ease-out forwards;
+    }
+
+    @keyframes carteAppear {
+      0% {
+        opacity: 0;
+        transform: translateY(10px) rotate(-1deg) scale(0.95);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) rotate(-1deg) scale(1);
+      }
+    }
+
+    /* Effet de papier vieilli */
+    .info-carte::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        linear-gradient(90deg, 
+          transparent 0%, 
+          rgba(255,255,255,0.1) 1%, 
+          transparent 2%),
+        linear-gradient(0deg, 
+          transparent 0%, 
+          rgba(255,255,255,0.1) 1%, 
+          transparent 2%),
+        radial-gradient(circle at 20% 80%, 
+          rgba(255,255,255,0.1) 0%, 
+          transparent 20%),
+        radial-gradient(circle at 80% 20%, 
+          rgba(255,255,255,0.1) 0%, 
+          transparent 20%);
+      pointer-events: none;
+      border-radius: 3px;
+    }
+
+    /* Taches d'âge sur le papier */
+    .info-carte::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(circle at 10% 20%, 
+          rgba(139, 69, 19, 0.05) 0%, 
+          transparent 40%),
+        radial-gradient(circle at 90% 80%, 
+          rgba(139, 69, 19, 0.05) 0%, 
+          transparent 40%),
+        radial-gradient(circle at 30% 70%, 
+          rgba(139, 69, 19, 0.03) 0%, 
+          transparent 30%);
+      pointer-events: none;
+      border-radius: 3px;
+    }
+
+    /* En-tête de la carte */
+    .carte-header {
+      text-align: center;
+      margin-bottom: 18px;
+      position: relative;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #8B4513;
+    }
+
+    .carte-header h3 {
+      color: #5d2d0c;
+      margin: 0;
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      text-shadow: 1px 1px 1px rgba(0,0,0,0.1);
+      font-family: 'Palatino Linotype', serif;
+    }
+
+    .carte-header .subtitle {
+      color: #7a4a23;
+      font-style: italic;
+      margin-top: 3px;
+      font-size: 12px;
+    }
+
+    /* Contenu de la carte */
+    .carte-content {
+      line-height: 1.5;
+      position: relative;
+      z-index: 2;
+    }
+
+    .carte-content ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .carte-content li {
+      margin-bottom: 10px;
+      padding-left: 20px;
+      position: relative;
+      font-size: 12.5px;
+    }
+
+    .carte-content li:before {
+      content: "🧪";
+      position: absolute;
+      left: 0;
+      color: #8B4513;
+      font-size: 12px;
+    }
+
+    /* Pour les livres, garder l'emoji livre */
+    .info-carte:not([id*="potion"]) .carte-content li:before {
+      content: "📚";
+    }
+
+    .carte-content strong {
+      color: #5d2d0c;
+      font-weight: bold;
+      font-size: 12.5px;
+    }
+
+    /* Sceau de cire */
+    .sceau-livre {
+      position: absolute;
+      bottom: -15px;
+      right: -15px;
+      width: 45px;
+      height: 45px;
+      background: radial-gradient(circle at 30% 30%, 
+        #2c5aa0 0%, 
+        #4a7bc8 30%, 
+        #2c5aa0 70%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 
+        0 2px 8px rgba(0,0,0,0.3),
+        inset 0 1px 4px rgba(255,255,255,0.2);
+      z-index: 3;
+      transform: rotate(15deg);
+    }
+
+    .sceau-livre:after {
+      content: "B";
+      color: rgba(255, 255, 255, 0.9);
+      font-family: 'Times New Roman', serif;
+      font-size: 21px;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* Effet au survol */
+    .bibliothecaire:hover,
+    .etudiant:hover {
+      filter: drop-shadow(0 0 10px #ffd700);
+      animation-play-state: paused;
+    }
+
+    /* Plume décorative */
+    .plume {
+      position: absolute;
+      top: -12px;
+      right: 15px;
+      width: 30px;
+      height: 30px;
+      background: linear-gradient(45deg, #8B4513 0%, #D2B48C 50%, #8B4513 100%);
+      clip-path: polygon(50% 0%, 60% 20%, 100% 50%, 60% 80%, 50% 100%, 40% 80%, 0% 50%, 40% 20%);
+      transform: rotate(45deg);
+      opacity: 0.7;
+    }
+
+    /* Styles pour les paragraphes dans les cartes */
+    .carte-content p {
+      font-size: 12px;
+      margin: 15px 0 0 0;
+      text-align: center;
+      font-style: italic;
+      color: #7a4a23;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bibliotheque">
+    <!-- Livres -->
+    <div class="livre" id="mathematiques">
+      <img src="livre.png" alt="Mathématiques">
+      <span>Mathématiques</span>
+    </div>
+    <div class="livre" id="physique">
+      <img src="livre.png" alt="Physique">
+      <span>Physique</span>
+    </div>
+    <div class="livre" id="histoire">
+      <img src="livre.png" alt="Histoire">
+      <span>Histoire</span>
+    </div>
+    <div class="livre" id="programmation">
+      <img src="livre.png" alt="Programmation">
+      <span>Programmation</span>
+    </div>
+
+    <!-- Potions magiques - EN HAUT À GAUCHE - HORIZONTALES -->
+    <div class="potion" id="potion-sagesse">
+      <img src="bottle.png" alt="Potion de Sagesse">
+      <span>Potion de Sagesse</span>
+    </div>
+
+    <div class="potion" id="potion-memoire">
+      <img src="potion.png" alt="Potion de Mémoire">
+      <span>Potion de Mémoire</span>
+    </div>
+
+    <div class="potion" id="potion-concentration">
+      <img src="potion (1).png" alt="Potion de Concentration">
+      <span>Potion de Concentration</span>
+    </div>
+
+    <!-- Personnages -->
+    <img src="getafix.png" class="bibliothecaire" alt="Bibliothécaire" data-personnage="bibliothecaire">
+    <img src="asterix.png" class="etudiant" alt="Étudiant" data-personnage="etudiant">
+    
+    <!-- Cartes d'information pour les livres -->
+    <div class="info-carte" id="carte-mathematiques">
+      <div class="plume"></div>
+      <div class="carte-header">
+        <h3>MATHÉMATIQUES AVANCÉES</h3>
+        <div class="subtitle">Par le Professeur Euclide</div>
+      </div>
+      <div class="carte-content">
+        <ul>
+          <li><strong>Algèbre :</strong> Équations, polynômes, matrices</li>
+          <li><strong>Analyse :</strong> Limites, dérivées, intégrales</li>
+          <li><strong>Géométrie :</strong> Euclidienne et analytique</li>
+          <li><strong>Statistiques :</strong> Probabilités, distributions</li>
+        </ul>
+        <p>"Les mathématiques sont la langue de l'univers"</p>
+      </div>
+      <div class="sceau-livre"></div>
+    </div>
+    
+    <div class="info-carte" id="carte-physique">
+      <div class="plume"></div>
+      <div class="carte-header">
+        <h3>PHYSIQUE MODERNE</h3>
+        <div class="subtitle">Par Isaac Newton</div>
+      </div>
+      <div class="carte-content">
+        <ul>
+          <li><strong>Mécanique :</strong> Lois de Newton, énergie</li>
+          <li><strong>Électromagnétisme :</strong> Circuits, ondes</li>
+          <li><strong>Thermodynamique :</strong> Chaleur, entropie</li>
+          <li><strong>Physique quantique :</strong> Atomes, particules</li>
+        </ul>
+        <p>"Si j'ai vu plus loin, c'est en me juchant sur des épaules de géants"</p>
+      </div>
+      <div class="sceau-livre"></div>
+    </div>
+    
+    <!-- Ajout des cartes manquantes -->
+    <div class="info-carte" id="carte-histoire">
+      <div class="plume"></div>
+      <div class="carte-header">
+        <h3>HISTOIRE MONDIALE</h3>
+        <div class="subtitle">Par Hérodote</div>
+      </div>
+      <div class="carte-content">
+        <ul>
+          <li><strong>Antiquité :</strong> Égypte, Grèce, Rome</li>
+          <li><strong>Moyen Âge :</strong> Féodalité, Croisades</li>
+          <li><strong>Époque moderne :</strong> Renaissance, Révolutions</li>
+          <li><strong>Époque contemporaine :</strong> Guerres mondiales</li>
+        </ul>
+        <p>"L'histoire est un grand livre toujours ouvert à tous les yeux"</p>
+      </div>
+      <div class="sceau-livre"></div>
+    </div>
+    
+    <div class="info-carte" id="carte-programmation">
+      <div class="plume"></div>
+      <div class="carte-header">
+        <h3>PROGRAMMATION INFORMATIQUE</h3>
+        <div class="subtitle">Par Ada Lovelace</div>
+      </div>
+      <div class="carte-content">
+        <ul>
+          <li><strong>Langages :</strong> Python, JavaScript, C++</li>
+          <li><strong>Algorithmes :</strong> Structures de données</li>
+          <li><strong>Développement web :</strong> HTML, CSS, JS</li>
+          <li><strong>Bases de données :</strong> SQL, NoSQL</li>
+        </ul>
+        <p>"Le code est de la poésie écrite pour être exécutée par une machine"</p>
+      </div>
+      <div class="sceau-livre"></div>
+    </div>
+    
+    <!-- Cartes pour les potions magiques - MODIFIÉES POUR INCLURE LES MATIÈRES -->
+    <div class="info-carte" id="carte-potion-sagesse">
+      <div class="plume"></div>
+      <div class="carte-header">
+        <h3>POTION DE SAGESSE</h3>
+        <div class="subtitle">Pour la compréhension approfondie</div>
+      </div>
+      <div class="carte-content">
+        <ul>
+          <li><strong>Ingrédients :</strong> Feuilles de chêne, cristal lunaire</li>
+          <li><strong>Effet :</strong> Augmente la compréhension et l'intuition</li>
+          <li><strong>Durée :</strong> 3 heures</li>
+          <li><strong>Matières utiles :</strong> Philosophie, Mathématiques, Physique théorique</li>
+          <li><strong>Idéale pour :</strong> Résoudre des problèmes complexes, comprendre des concepts abstraits</li>
+        </ul>
+        <p>"La sagesse n'est pas de connaître toutes les réponses, mais de poser les bonnes questions"</p>
+      </div>
+      <div class="sceau-livre"></div>
+    </div>
+
+    <div class="info-carte" id="carte-potion-memoire">
+      <div class="plume"></div>
+      <div class="carte-header">
+        <h3>POTION DE MÉMOIRE</h3>
+        <div class="subtitle">Pour la rétention parfaite</div>
+      </div>
+      <div class="carte-content">
+        <ul>
+          <li><strong>Ingrédients :</strong> Gingko biloba, perle de rosée</li>
+          <li><strong>Effet :</strong> Améliore la rétention et le rappel</li>
+          <li><strong>Durée :</strong> 24 heures</li>
+          <li><strong>Matières utiles :</strong> Histoire, Littérature, Biologie, Droit</li>
+          <li><strong>Idéale pour :</strong> Apprendre des dates, des formules, des définitions</li>
+        </ul>
+        <p>"La mémoire est le gardien de tous les savoirs, le trésor de l'esprit"</p>
+      </div>
+      <div class="sceau-livre"></div>
+    </div>
+
+    <div class="info-carte" id="carte-potion-concentration">
+      <div class="plume"></div>
+      <div class="carte-header">
+        <h3>POTION DE CONCENTRATION</h3>
+        <div class="subtitle">Pour une attention totale</div>
+      </div>
+      <div class="carte-content">
+        <ul>
+          <li><strong>Ingrédients :</strong> Thé vert, quartz clair</li>
+          <li><strong>Effet :</strong> Augmente l'attention et la focalisation</li>
+          <li><strong>Durée :</strong> 2 heures</li>
+          <li><strong>Matières utiles :</strong> Programmation, Mathématiques, Chimie, Physique</li>
+          <li><strong>Idéale pour :</strong> Résoudre des exercices, coder, faire des expériences</li>
+        </ul>
+        <p>"La concentration transforme l'effort en résultat, la patience en réussite"</p>
+      </div>
+      <div class="sceau-livre"></div>
+    </div>
+    
+    <!-- Carte pour le bibliothécaire -->
+    <div class="info-carte" id="carte-bibliothecaire">
+      <div class="plume"></div>
+      <div class="carte-header">
+        <h3>GUIDE DE LA BIBLIOTHÈQUE</h3>
+        <div class="subtitle">Par le Bibliothécaire en chef</div>
+      </div>
+      <div class="carte-content">
+        <ul>
+          <li><strong>Mathématiques :</strong> Rayon 100-200</li>
+          <li><strong>Physique :</strong> Rayon 300-400</li>
+          <li><strong>Histoire :</strong> Rayon 500-600</li>
+          <li><strong>Programmation :</strong> Rayon 700-800</li>
+          <li><strong>Potions :</strong> Section magique (sous-sol) - Utilisation contrôlée</li>
+        </ul>
+        <p>"Un livre ouvert est un cerveau qui parle, fermé un ami qui attend"</p>
+      </div>
+      <div class="sceau-livre"></div>
+    </div>
+    
+    <!-- Carte pour l'étudiant - MODIFIÉE -->
+    <div class="info-carte" id="carte-etudiant">
+      <div class="plume"></div>
+      <div class="carte-header">
+        <h3>CONSEILS D'ÉTUDE</h3>
+        <div class="subtitle">Par un étudiant expérimenté</div>
+      </div>
+      <div class="carte-content">
+        <ul>
+          <li><strong>Organisation :</strong> Planifiez vos sessions d'étude</li>
+          <li><strong>Régularité :</strong> Mieux vaut 30 minutes par jour qu'une journée entière</li>
+          <li><strong>Pratique :</strong> Faites des exercices et corrigez vos erreurs</li>
+          <li><strong>Potions :</strong> À utiliser avec modération, jamais avant les examens</li>
+          <li><strong>Conseil :</strong> Associez chaque matière à une potion adaptée</li>
+        </ul>
+        <p>"Le savoir est la seule richesse qui s'accroît quand on la partage"</p>
+      </div>
+      <div class="sceau-livre"></div>
+    </div>
+  </div>
+
+  <script>
+    const livres = document.querySelectorAll('.livre');
+    const potions = document.querySelectorAll('.potion');
+    const bibliothecaire = document.querySelector('.bibliothecaire');
+    const etudiant = document.querySelector('.etudiant');
+    
+    // Cartes d'information
+    const carteMath = document.getElementById('carte-mathematiques');
+    const cartePhysique = document.getElementById('carte-physique');
+    const carteHistoire = document.getElementById('carte-histoire');
+    const carteProgrammation = document.getElementById('carte-programmation');
+    const cartePotionSagesse = document.getElementById('carte-potion-sagesse');
+    const cartePotionMemoire = document.getElementById('carte-potion-memoire');
+    const cartePotionConcentration = document.getElementById('carte-potion-concentration');
+    const carteBiblio = document.getElementById('carte-bibliothecaire');
+    const carteEtudiant = document.getElementById('carte-etudiant');
+    
+    // Positions des livres en cercle
+    function positionnerElements() {
+      // Positionner les livres
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight * 0.35;
+      const radius = Math.min(window.innerWidth, window.innerHeight) * 0.25;
+      const numLivres = livres.length;
+      const angleStep = (2 * Math.PI) / numLivres;
+      const startAngle = -Math.PI / 2;
+      
+      livres.forEach((livre, index) => {
+        const angle = startAngle + (index * angleStep);
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        
+        livre.style.left = `${x}px`;
+        livre.style.top = `${y}px`;
+      });
+      
+      // Positionner les potions EN HAUT À GAUCHE - HORIZONTALEMENT
+      const numPotions = potions.length;
+      const startX = window.innerWidth * 0.15; // 15% de la largeur (à gauche)
+      const startY = window.innerHeight * 0.10; // 10% du haut (un peu plus haut)
+      const espaceHorizontal = 150; // PLUS D'ESPACE: 150px entre les potions (au lieu de 80-100px)
+      
+      potions.forEach((potion, index) => {
+        const x = startX + (index * espaceHorizontal);
+        const y = startY;
+        potion.style.left = `${x}px`;
+        potion.style.top = `${y}px`;
+      });
+    }
+    
+    // Ajouter événements aux livres
+    livres.forEach(livre => {
+      if (!livre.hasClickListener) {
+        livre.addEventListener('click', () => {
+          const livreId = livre.id;
+          let carte;
+          
+          if (livreId === 'mathematiques') carte = carteMath;
+          else if (livreId === 'physique') carte = cartePhysique;
+          else if (livreId === 'histoire') carte = carteHistoire;
+          else if (livreId === 'programmation') carte = carteProgrammation;
+          
+          if (carte) {
+            // Cacher toutes les cartes d'abord
+            document.querySelectorAll('.info-carte.active').forEach(c => {
+              c.classList.remove('active');
+            });
+            
+            // Positionner et afficher la carte
+            positionnerCarte(carte, livre);
+            carte.classList.add('active');
+            
+            // Fermer après 5 secondes
+            setTimeout(() => {
+              if (carte.classList.contains('active')) {
+                carte.classList.remove('active');
+              }
+            }, 5000);
+          }
+        });
+        livre.hasClickListener = true;
+      }
+    });
+    
+    // Ajouter événements aux potions
+    potions.forEach(potion => {
+      if (!potion.hasClickListener) {
+        potion.addEventListener('click', () => {
+          const potionId = potion.id;
+          let carte;
+          
+          if (potionId === 'potion-sagesse') carte = cartePotionSagesse;
+          else if (potionId === 'potion-memoire') carte = cartePotionMemoire;
+          else if (potionId === 'potion-concentration') carte = cartePotionConcentration;
+          
+          if (carte) {
+            // Cacher toutes les cartes d'abord
+            document.querySelectorAll('.info-carte.active').forEach(c => {
+              c.classList.remove('active');
+            });
+            
+            // Positionner et afficher la carte
+            positionnerCarte(carte, potion);
+            carte.classList.add('active');
+            
+            // Fermer après 5 secondes
+            setTimeout(() => {
+              if (carte.classList.contains('active')) {
+                carte.classList.remove('active');
+              }
+            }, 5000);
+          }
+        });
+        potion.hasClickListener = true;
+      }
+    });
+    
+    // Fonction pour positionner une carte près d'un élément
+    function positionnerCarte(carte, target) {
+      const rect = target.getBoundingClientRect();
+      const carteWidth = 280;
+      const carteHeight = 340;
+      
+      // Positionner à droite de l'élément
+      let left = rect.right + 15;
+      let top = rect.top + rect.height / 2 - carteHeight / 2;
+      
+      // Ajuster si la carte dépasse en bas
+      if (top + carteHeight > window.innerHeight - 10) {
+        top = window.innerHeight - carteHeight - 10;
+      }
+      
+      // Ajuster si la carte dépasse en haut
+      if (top < 10) {
+        top = 10;
+      }
+      
+      // Ajuster si la carte dépasse à droite
+      if (left + carteWidth > window.innerWidth - 10) {
+        left = rect.left - carteWidth - 15;
+      }
+      
+      carte.style.left = `${left}px`;
+      carte.style.top = `${top}px`;
+    }
+    
+    // Gestion des personnages
+    let currentCarte = null;
+    
+    function afficherCarte(personnage) {
+      let carte;
+      
+      if (personnage === 'bibliothecaire') {
+        carte = carteBiblio;
+      } else if (personnage === 'etudiant') {
+        carte = carteEtudiant;
+      }
+      
+      if (carte) {
+        // Cacher la carte actuelle
+        if (currentCarte) {
+          currentCarte.classList.remove('active');
+        }
+        
+        // Positionner et afficher la nouvelle carte
+        positionnerCarte(carte, personnage === 'bibliothecaire' ? bibliothecaire : etudiant);
+        carte.classList.add('active');
+        currentCarte = carte;
+      }
+    }
+    
+    // Événements pour les personnages
+    bibliothecaire.addEventListener('mouseenter', () => {
+      afficherCarte('bibliothecaire');
+    });
+    
+    bibliothecaire.addEventListener('mouseleave', () => {
+      setTimeout(() => {
+        if (currentCarte === carteBiblio) {
+          carteBiblio.classList.remove('active');
+          currentCarte = null;
+        }
+      }, 300);
+    });
+    
+    etudiant.addEventListener('mouseenter', () => {
+      afficherCarte('etudiant');
+    });
+    
+    etudiant.addEventListener('mouseleave', () => {
+      setTimeout(() => {
+        if (currentCarte === carteEtudiant) {
+          carteEtudiant.classList.remove('active');
+          currentCarte = null;
+        }
+      }, 300);
+    });
+    
+    // Fermer les cartes en cliquant ailleurs
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.livre') && 
+          !e.target.closest('.potion') && 
+          !e.target.closest('.bibliothecaire') && 
+          !e.target.closest('.etudiant') && 
+          !e.target.closest('.info-carte')) {
+        document.querySelectorAll('.info-carte.active').forEach(carte => {
+          carte.classList.remove('active');
+        });
+        currentCarte = null;
+      }
+    });
+    
+    // Initialiser les positions
+    positionnerElements();
+    
+    // Redimensionnement
+    window.addEventListener('resize', () => {
+      positionnerElements();
+    });
+  </script>
+
+</body>
+</html>

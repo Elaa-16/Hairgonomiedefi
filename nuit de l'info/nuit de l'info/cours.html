@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bibliothèque Cartoon</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+    <h2>📚 Bibliothèque Gauloise</h2>
+</header>
+
+<section class="shelf">
+    <!-- 20 livres cliquables -->
+    <div class="book" data-title="Cours 1" data-content="Voici le contenu du cours 1"></div>
+    <div class="book" data-title="Cours 2" data-content="Voici le contenu du cours 2"></div>
+    <div class="book" data-title="Cours 3" data-content="Voici le contenu du cours 3"></div>
+    <div class="book" data-title="Cours 4" data-content="Voici le contenu du cours 4"></div>
+    <div class="book" data-title="Cours 5" data-content="Voici le contenu du cours 5"></div>
+    <div class="book" data-title="Cours 6" data-content="Voici le contenu du cours 6"></div>
+    <div class="book" data-title="Cours 7" data-content="Voici le contenu du cours 7"></div>
+    <div class="book" data-title="Cours 8" data-content="Voici le contenu du cours 8"></div>
+    <div class="book" data-title="Cours 9" data-content="Voici le contenu du cours 9"></div>
+    <div class="book" data-title="Cours 10" data-content="Voici le contenu du cours 10"></div>
+</section>
+
+<!-- Popup Fiche de cours -->
+<div id="popup" class="popup">
+    <div class="popup-content">
+        <span id="closePopup" class="close">&times;</span>
+        <h3 id="popupTitle"></h3>
+        <p id="popupText"></p>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
